@@ -1,0 +1,18 @@
+{
+  "scripts": {
+    "start": "node backend/src/server.js",
+    "dev": "nodemon --watch backend/src --ext js,json --exec node backend/src/server.js",
+    "test": "node --test backend/test/validacao.test.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.118.0",
+    "cors": "^2.8.6",
+    "csv-parse": "^7.0.3",
+    "dotenv": "^18.0.8",
+    "express": "^5.3.0",
+    "multer": "^2.4.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}
