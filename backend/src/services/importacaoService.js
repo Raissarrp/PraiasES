@@ -1,4 +1,4 @@
-const { obterSupabase } = require('../config/supabase');
+const { obterSupabasePrivilegiado } = require('../config/supabase');
 const { ErroHttp } = require('../utils/erros');
 
 const colunasObrigatorias = [
@@ -91,7 +91,7 @@ function validarLinha(linha, numeroLinha) {
 }
 
 async function importar(registros, nomeArquivo) {
-  const supabase = obterSupabase();
+  const supabase = obterSupabasePrivilegiado();
   const resposta = await supabase.rpc('importar_amostras_csv', {
     p_registros: registros,
     p_nome_arquivo: nomeArquivo

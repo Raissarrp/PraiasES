@@ -7,6 +7,7 @@ const { asyncHandler, ErroHttp } = require('../utils/erros');
 const { textoOpcional, inteiroOpcional, dataOpcional } = require('../utils/validacao');
 const consulta = require('../services/consultaService');
 const importacao = require('../services/importacaoService');
+const crypto = require('node:crypto');
 
 const roteador = express.Router();
 const upload = multer({
@@ -18,6 +19,26 @@ function filtrosCatalogo(req, nomes) {
   return nomes
     .map((nome) => ({ coluna: nome, valor: inteiroOpcional(req.query[nome], nome) }))
     .filter((filtro) => filtro.valor !== undefined);
+}
+
+function exigirTokenImportacao(req, res, next) {
+  if (!configuracao.tokenImportacao) {
+    throw new ErroHttp('Importação desabilitada: configure IMPORT_TOKEN.', 503, 'IMPORTACAO_DESABILITADA');
+  }
+
+  const recebido = req.headers.authorization?.startsWith('Bearer ')
+    ? req.headers.authorization.slice(7)
+    : '';
+  const esperado = Buffer.from(configuracao.tokenImportacao);
+  const informado = Buffer.from(recebido);
+  const valido = informado.length === esperado.length
+    && crypto.timingSafeEqual(informado, esperado);
+
+  if (!valido) {
+    throw new ErroHttp('Autenticação necessária para importar dados.', 401, 'NAO_AUTORIZADO');
+  }
+
+  next();
 }
 
 roteador.get('/health', asyncHandler(async (req, res) => {
@@ -88,7 +109,7 @@ roteador.get('/documentos', asyncHandler(async (req, res) => {
   }));
 }));
 
-roteador.post('/importacoes/csv', upload.single('arquivo'), asyncHandler(async (req, res) => {
+roteador.post('/importacoes/csv', exigirTokenImportacao, upload.single('arquivo'), asyncHandler(async (req, res) => {
   if (!req.file) {
     throw new ErroHttp('Envie o arquivo CSV no campo arquivo.');
   }

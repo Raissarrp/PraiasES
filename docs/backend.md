@@ -9,7 +9,9 @@ Copie `.env.example` para `.env` e preencha:
 - `PORT`: porta local do servidor.
 - `FRONTEND_URL`: origem autorizada pelo CORS.
 - `SUPABASE_URL`: URL do projeto Supabase.
+- `SUPABASE_ANON_KEY`: chave pública usada nas consultas sujeitas às políticas RLS.
 - `SUPABASE_SERVICE_ROLE_KEY`: chave privada usada somente no backend.
+- `IMPORT_TOKEN`: token privado exigido para importar CSV.
 - `MAX_UPLOAD_SIZE_MB`: tamanho máximo do CSV recebido.
 
 O arquivo `.env` não deve ser versionado.
@@ -39,6 +41,7 @@ Aplique `database/01_extensions.sql` e `database/02_modelo_inicial.sql` no SQL E
 
 ## Rotas
 
+- `GET /api-docs` (somente fora de produção)
 - `GET /api/health`
 - `GET /api/municipios`
 - `GET /api/praias?municipio_id=1`
@@ -48,4 +51,4 @@ Aplique `database/01_extensions.sql` e `database/02_modelo_inicial.sql` no SQL E
 - `GET /api/documentos?fonte_id=1`
 - `POST /api/importacoes/csv` com o arquivo no campo multipart `arquivo`
 
-O endpoint de importação preserva a classificação do ETL e não calcula classificação oficial de balneabilidade.
+O endpoint de importação exige `Authorization: Bearer <IMPORT_TOKEN>`, preserva a classificação do ETL e não calcula classificação oficial de balneabilidade. As consultas usam a chave anon e dependem das políticas RLS do Supabase. A chave service role é usada somente pela RPC de importação.

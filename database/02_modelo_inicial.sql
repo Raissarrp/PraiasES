@@ -218,3 +218,6 @@ BEGIN
   );
 END;
 $$;
+
+REVOKE ALL ON FUNCTION importar_amostras_csv(jsonb, text) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION importar_amostras_csv(jsonb, text) TO service_role;

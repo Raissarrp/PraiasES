@@ -1,6 +1,8 @@
 const express = require('express');
 const cors = require('cors');
+const swaggerUi = require('swagger-ui-express');
 const configuracao = require('./config/env');
+const documentacao = require('./config/openapi');
 const api = require('./routes/api');
 
 const app = express();
@@ -9,6 +11,9 @@ app.use(cors({
   origin: configuracao.origemFrontend
 }));
 app.use(express.json({ limit: '1mb' }));
+if (configuracao.ambiente !== 'production') {
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(documentacao));
+}
 app.use('/api', api);
 
 app.use((req, res) => {
